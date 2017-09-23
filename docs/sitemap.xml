@@ -3,29 +3,29 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://example.org/posts/my-first-post/</loc>
+    <loc>www.grantmaki.com/posts/my-first-post/</loc>
     <lastmod>2017-09-20T21:08:18-04:00</lastmod>
   </url>
   
   <url>
-    <loc>http://example.org/categories/</loc>
+    <loc>www.grantmaki.com/categories/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://example.org/</loc>
-    <lastmod>2017-09-20T21:08:18-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>http://example.org/posts/</loc>
+    <loc>www.grantmaki.com/</loc>
     <lastmod>2017-09-20T21:08:18-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://example.org/tags/</loc>
+    <loc>www.grantmaki.com/posts/</loc>
+    <lastmod>2017-09-20T21:08:18-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>www.grantmaki.com/tags/</loc>
     <priority>0</priority>
   </url>
   
