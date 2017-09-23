@@ -1,0 +1,5 @@
+baseURL = "www.grantmaki.com"
+languageCode = "en-us"
+title = "My New Hugo Site"
+theme="hugo-theme-cactus-plus"
+publishDir = "docs"
