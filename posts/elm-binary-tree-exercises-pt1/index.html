@@ -1,0 +1,240 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		
+		<meta name="generator" content="Hugo 0.27.1" />
+		<title>Elm Binary Tree Exercises part 1 &middot; My New Hugo Site</title>
+		<link rel="shortcut icon" href="https://fishymcswish.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/style.css">
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/monosocialiconsfont.css">
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://fishymcswish.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://fishymcswish.github.io/post'>Archive</a>
+	<a href='https://fishymcswish.github.io/tags'>Tags</a>
+	<a href='https://fishymcswish.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>
+                        Elm Binary Tree Exercises part 1
+                    </h1>
+                    <h2 class="headline">
+                    Sep 20, 2017 21:08
+                    · 956 words
+                    · 5 minutes read
+                      <span class="tags">
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <h1 id="elm-binary-tree-exercises">Elm Binary Tree exercises</h1>
+
+<p>As I was working my way through the <a href="https://guide.elm-lang.org/" title="Elm Guide">Elm Guide</a>, I saw that the exercises at the end of <a href="http://elm-lang.org/examples/binary-tree" title="this Binary Tree example">this Binary Tree example</a> were reccomended as a way to get a good handle on Union Types.  I marked it down for future consideration, and I've finally come back to it.</p>
+
+<p>(Note: all of my snippets are coming from the solutions <a href="https://github.com/FishyMcSwish/Binary-Tree-Elm-Exercises/tree/master" title="on my github">on my github</a>)</p>
+
+<p>So far I have implemented the parts that seemed the most straight forward to me.</p>
+
+<p>The excercise sets you up with an implemenation of a Binary tree, with some methods already implemented.</p>
+
+<pre><code class="language-elm">
+type Tree a
+    = Empty
+    | Node a (Tree a) (Tree a)
+</code></pre>
+
+<p>A tree consists of nodes.  The nodes can either be empty, or they can have a value and point to later nodes, which are themselves just tiny trees.  This makes sense.</p>
+
+<p>The example also implements some basic methods for you, such as <strong>insert</strong>, <strong>fromList</strong> to make a tree from a list, etc.</p>
+
+<p>It also provides a playground that has a <strong>display</strong> method to let you look at your tree in a browser. I think the nudge there was to add to the <strong>display</strong> function to interactively see how your trees were coming out as you modified functions and test your work.  I personally was getting pretty fast feedback  working with elm-test and the elm repl, so I didn't find it helpful to also keep updating the display function and running it in a browser.</p>
+
+<h2 id="implementing-some-basic-tree-methods">Implementing some basic tree methods</h2>
+
+<p>Anyways, that's a lot of windup.  Here are the excercises I have implemented so far.  The first few are pretty straight forward:</p>
+
+<pre><code class="language-elm">
+{- Exercises:
+   (1) Sum all of the elements of a tree.
+          sum : Tree number -&gt; number-
+-}
+
+
+sum : Tree number -&gt; number
+sum tree =
+    case tree of
+        Empty -&gt;
+            0
+
+        Node x left right -&gt;
+            x + sum left + sum right
+
+
+
+{- (2) Flatten a tree into a list.
+   flatten : Tree a -&gt; List a
+-}
+
+
+flatten : Tree a -&gt; List a
+flatten tree =
+    case tree of
+        Empty -&gt;
+            []
+
+        Node x left right -&gt;
+            List.append [ x ] (flatten right)
+                |&gt; List.append (flatten left)
+
+
+
+{- (3) Check to see if an element is in a given tree.
+   isElement : a -&gt; Tree a -&gt; Bool
+-}
+
+
+contains : Tree a -&gt; a -&gt; Bool
+contains tree item =
+    case tree of
+        Empty -&gt;
+            False
+
+        Node x left right -&gt;
+            if x == item then
+                True
+            else
+                (contains left item) || (contains right item)
+</code></pre>
+
+<p>These exercises get you accustomed to recursion.  If you are coming from an OO background as I am, you are probably used to using an iterative approach like <strong>for</strong> loop for these kinds of problems.  Well in an immutable functional languages like Elm, there is no maintaining of local state in an iterator variable.  So we best get used to recursion.</p>
+
+<h2 id="folding">Folding</h2>
+
+<p>The next task was to implement fold, and then use it to re-implement the previous methods.</p>
+
+<pre><code class="language-elm">
+{- (4) Write a general fold function that acts on trees. The fold
+   function does not need to guarantee a particular order of
+   traversal.
+      fold : (a -&gt; b -&gt; b) -&gt; b -&gt; Tree a -&gt; b
+-}
+
+
+fold : (a -&gt; b -&gt; b) -&gt; b -&gt; Tree a -&gt; b
+fold function accumulator tree =
+    case tree of
+        Empty -&gt;
+            accumulator
+
+        Node x left right -&gt;
+            let
+                thisNode =
+                    function x accumulator
+            in
+                fold function (fold function thisNode left) right
+
+</code></pre>
+
+<p>I was pleasantly supprised how clean this function was.  It follows basically the same form as the previous ones, traversing the tree until you find an empty node, and then returning with a value that could semantically be considered null.    
+For example, when <strong>flatten</strong> gets to an Empty, it returns <strong>[]</strong>, and  <strong>sum</strong> returns <strong>0</strong>. It is the same way with <strong>fold</strong> really.  In <strong>fold</strong>, you build up the accumulator as you pass through each Node.  Simply returning the accumulator without adding to it is essentially the same thing as a null or no-op.</p>
+
+<p>Finally, we used <strong>fold</strong> to re-implement the previous 3 functions.</p>
+
+<pre><code class="language-elm">
+
+{- (5) Use &quot;fold&quot; to do exercises 1-3 in one line each. The best
+   readable versions I have come up have the following length
+   in characters including spaces and function name:
+     sum: 16
+     flatten: 21
+     isElement: 46
+   See if you can match or beat me! Don't forget about currying
+   and partial application!
+-}
+
+
+foldSum : Tree Int -&gt; Int
+foldSum tree =
+    fold (+) 0 tree
+
+
+foldFlatten : Tree a -&gt; List a
+foldFlatten tree =
+    fold (::) [] tree
+
+
+foldContains : Tree a -&gt; a -&gt; Bool
+foldContains tree item =
+    fold ((==) item &gt;&gt; (||)) False tree
+</code></pre>
+
+<p>The excercise suggested a "code golf" challenge to see how few characters you could use to implement the functions.  I didn't do that because part of what I'm trying to work on is making functions that are more readable.  Overall I think these functions do the job.  The only one I'm not sure of is <strong>foldContains</strong>.  You kind of have to stare at it.</p>
+
+<p>The accumulator is just False.  The function being folded takes each elment of the tree and checks if it is <strong>==</strong> to the item you are looking for.  Then it pipes that result into <strong>||</strong>, the logical <strong>or</strong> operator, with the accumulator.  If any of the items are the one  you are looking for, one of them will flip the acumulator to True.</p>
+
+<p>I don't know a good way to clean up <strong>foldContains</strong>.  That is the only one of the three fold-based functions that didn't seem cleaner than the original.</p>
+
+<p>That's all for now.  Later on, I will post about the rest of the exercises.</p>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+    <p class="small">
+    
+       © Copyright 2017 <i class="fa fa-heart" aria-hidden="true"></i> 
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://fishymcswish.github.io/js/jquery-2.2.4.min.js"></script>
+<script src="https://fishymcswish.github.io/js/main.js"></script>
+<script src="https://fishymcswish.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>
