@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://fishymcswish.github.io/about/</loc>
+    <lastmod>2017-10-23T20:27:18-04:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://fishymcswish.github.io/posts/elm-binary-tree-exercises-2/</loc>
     <lastmod>2017-10-23T19:30:13-04:00</lastmod>
   </url>
