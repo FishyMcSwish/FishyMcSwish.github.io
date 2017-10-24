@@ -6,10 +6,21 @@
     <description>Recent content in Posts on My New Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 15 Oct 2017 15:01:18 -0400</lastBuildDate>
+    <lastBuildDate>Mon, 23 Oct 2017 19:30:13 -0400</lastBuildDate>
     
 	<atom:link href="https://fishymcswish.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Elm Binary Tree Exercises part 2</title>
+      <link>https://fishymcswish.github.io/posts/elm-binary-tree-exercises-2/</link>
+      <pubDate>Mon, 23 Oct 2017 19:30:13 -0400</pubDate>
+      
+      <guid>https://fishymcswish.github.io/posts/elm-binary-tree-exercises-2/</guid>
+      <description>Elm Binary Tree exercises, continued I went through most of my solution to the Elm BST Exercises in a previous post. This post will finish with the last two problems, using fold to implement map and depth.
+Implementing Map with Fold This question wasn&#39;t as bad as I thought it would be at first.
+foldMap : (a -&amp;gt; comparable) -&amp;gt; Tree a -&amp;gt; Tree comparable foldMap function tree = fold (\x -&amp;gt; insert (function x)) empty tree  Map simply applies a function to each element in a data structure, changing the values in each node but leaving the underlying structure unchanged.</description>
+    </item>
     
     <item>
       <title>Elm Binary Tree Exercises part 1</title>

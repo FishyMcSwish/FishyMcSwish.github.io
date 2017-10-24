@@ -1,0 +1,164 @@
+    <!DOCTYPE html>
+<html lang="en-us">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		
+		<meta name="generator" content="Hugo 0.27.1" />
+		<title>Elm Binary Tree Exercises part 2 &middot; My New Hugo Site</title>
+		<link rel="shortcut icon" href="https://fishymcswish.github.io/images/favicon.ico">
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/style.css">
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/highlight.css">
+		
+
+		
+		<link rel="stylesheet" href="https://fishymcswish.github.io/css/monosocialiconsfont.css">
+		
+
+		
+	</head>
+
+    <body>
+       <nav class="main-nav">
+	
+	
+		<a href='https://fishymcswish.github.io/'> <span class="arrow">←</span>Home</a>
+	
+	<a href='https://fishymcswish.github.io/post'>Archive</a>
+	<a href='https://fishymcswish.github.io/tags'>Tags</a>
+	<a href='https://fishymcswish.github.io/about'>About</a>
+
+	
+
+	
+</nav>
+
+
+        <section id="wrapper">
+            <article class="post">
+                <header>
+                    <h1>
+                        Elm Binary Tree Exercises part 2
+                    </h1>
+                    <h2 class="headline">
+                    Oct 23, 2017 19:30
+                    · 640 words
+                    · 4 minutes read
+                      <span class="tags">
+                      
+                      </span>
+                    </h2>
+                </header>
+                
+                <section id="post-body">
+                    <h1 id="elm-binary-tree-exercises-continued">Elm Binary Tree exercises, continued</h1>
+
+<p>I went through most of my solution to the <a href="http://www.grantmaki.com/posts/elm-binary-tree-exercises-pt1/" title="Elm BST Exercises">Elm BST Exercises</a> in a <a href="http://www.grantmaki.com/posts/elm-binary-tree-exercises-pt1/" title="previous post.">previous post.</a>  This post will finish with the last two problems, using fold to implement <strong>map</strong> and <strong>depth</strong>.</p>
+
+<h2 id="implementing-map-with-fold">Implementing Map with Fold</h2>
+
+<p>This question wasn't as bad as I thought it would be at first.</p>
+
+<pre><code class="language-elm">
+foldMap : (a -&gt; comparable) -&gt; Tree a -&gt; Tree comparable
+foldMap function tree =
+    fold (\x -&gt; insert (function x)) empty tree
+</code></pre>
+
+<p><strong>Map</strong> simply applies a function to each element in a data structure, changing the values in each node but leaving the underlying structure unchanged.  This provided some complication for the tree structure, because there isn't one straight forward way to "iterate" through a Tree as there is through a List, for example.</p>
+
+<p>The solution here is to have the accumulator start out a an empty tree.  The function passed to <strong>fold</strong> inserts the new value back into the tree.</p>
+
+<h2 id="implementing-depth-with-fold">Implementing Depth with Fold??</h2>
+
+<p>This question stumped me for a long time.  I was never able to figure out how to keep track of where I was in the tree with <strong>fold</strong>.  My <strong>fold</strong> function merges the first node with the left immediately, and uses the results of folding down the left side as an accumulator when you start going down the right side.  All of the implementations I was able to find online used the same approach.</p>
+
+<p>The only solution that I was able to find that worked in principle, even if it sort of broke the rules, was from <a href="https://gist.github.com/lovasoa/1f55ad8ec12dd37edb7fce78e04e8974" title="this gist">this gist</a>.</p>
+
+<p>Borrowing from that gist, I implemented a <strong>reduce</strong> function that is similar to <strong>fold</strong>.</p>
+
+<pre><code class="language-elm">
+fold : (a -&gt; b -&gt; b) -&gt; b -&gt; Tree a -&gt; b
+fold function accumulator tree =
+    case tree of
+        Empty -&gt;
+            accumulator
+
+        Node x left right -&gt;
+            let
+                newAccumulator =
+                    function x accumulator
+            in
+                fold function (fold function newAccumulator left) right
+
+
+reduce : (a -&gt; b -&gt; b -&gt; b) -&gt; b -&gt; Tree a -&gt; b
+reduce fun accumulator tree =
+    case tree of
+        Empty -&gt;
+            accumulator
+
+        Node x left right -&gt;
+            fun x (reduce fun accumulator left) (reduce fun accumulator right)
+</code></pre>
+
+<p>The two functions are very similar from 10,000 feet.  Both traverse the Tree and apply the function to each node, gathering the results into the accumulator.</p>
+
+<p>The big difference is in the type signature of the function to be folded/reduced.  The function parameter in <strong>fold</strong> has the type signature <strong>(a->b->b)</strong> whereas the function parameter in <strong>reduce</strong> has the type signature <strong>(a->b->b->b)</strong>.  This allows <strong>reduce</strong> to apply the function parameter to the current node and each child node.  <strong>Fold</strong> can only apply its parameter function to the accumulator and one other param at a time.  This difference allows <strong>reduce</strong> to have some knowledge of where we are in the tree.</p>
+
+<p>Here is how I implemented <strong>depth</strong> using <strong>reduce</strong>.</p>
+
+<pre><code class="language-elm">
+reduceDepth : Tree number -&gt; number
+reduceDepth tree =
+    reduce (\v l r -&gt; 1 + max l r) 0 tree
+</code></pre>
+
+<p><strong>reduceDepth</strong> passes to reduce a function that acts on the accumulator, left node, and right node.  Our implementation of <strong>reduce</strong> recursively calls itself on each node.  This allows us to use <strong>max</strong> to get the maximum depth.</p>
+
+<p>I'm a little concerned I may have missed something here.  The <strong>reduce</strong> implementation works fine, but the exercise explicitly states that <strong>fold</strong> should have the type signature</p>
+
+<pre><code class="language-elm">
+fold : (a -&gt; b -&gt; b) -&gt; b -&gt; Tree a -&gt; b
+</code></pre>
+
+<p>But I wasn't able to figure out how to use that to implement <strong>depth</strong>, and I didn't see a solution for it online.  Maybe some day I will find out that either the problem wasn't possible, or there is a solution I didn't think of.  Until then, this is a solution that works and follows the pattern of using <strong>a</strong> fold/reduce function to implement depth.</p>
+
+                </section>
+            </article>
+
+            
+
+            
+
+            
+
+            <footer id="footer">
+    
+    <p class="small">
+    
+       © Copyright 2017 <i class="fa fa-heart" aria-hidden="true"></i> 
+    
+    </p>
+    <p class="small">
+        Powered by <a href="http://www.gohugo.io/">Hugo</a> Theme By <a href="https://github.com/nodejh/hugo-theme-cactus-plus">nodejh</a>
+    </p>
+</footer>
+
+        </section>
+
+        <script src="https://fishymcswish.github.io/js/jquery-2.2.4.min.js"></script>
+<script src="https://fishymcswish.github.io/js/main.js"></script>
+<script src="https://fishymcswish.github.io/js/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+    </body>
+</html>
